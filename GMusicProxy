@@ -23,6 +23,7 @@
 import BaseHTTPServer, socket, urlparse, urllib2
 import signal, os, sys, errno, tempfile, netifaces, pprint, argparse, ConfigParser, xdg.BaseDirectory, StringIO
 import gmusicapi, eyed3.id3
+import daemon
 
 def printDebug(msg, configDebugOverride=None):
     if (configDebugOverride is not None and configDebugOverride) or (config is not None and 'debug' in config and config['debug']): print >>sys.stderr, msg
@@ -413,6 +414,7 @@ def getOptions(filename):
     parser.add_argument('-a', '--disable-all-access', default=False, action='store_true', help='disable All Access functionalities')
     parser.add_argument('-L', '--list-devices', default=False, action='store_true', help='list the registered devices')
     parser.add_argument('-D', '--debug', default=False, action='store_true', help='enable debug messages')
+    parser.add_argument( '--daemon', default=False, action='store_true', help='run as a daemon')
 
     config = ConfigParser.SafeConfigParser()
     args = parser.parse_args()
@@ -490,6 +492,9 @@ if __name__ == '__main__':
     print '%s %s (© %s)\n' % (programDescription, programVersion, programMainAuthor)
 
     config = getOptions(configFilename)
+    if config['daemon']:
+        daemon.createDaemon()
+
 
     if config['email'] is None or config['password'] is None or len(config['email']) == 0 or len(config['password']) == 0:
         sys.exit('Please, specify the credentials of your Google account in the config file or on the command-line.')
